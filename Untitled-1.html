@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LiteShop — E‑commerce Template</title>
+  <style>
+    :root{
+      --bg:#0b0c0f;          /* deep slate */
+      --panel:#12141a;       /* card background */
+      --muted:#8a94a6;       /* secondary text */
+      --text:#e8ecf1;        /* primary text */
+      --brand:#5ac8fa;       /* accent */
+      --brand-2:#a78bfa;     /* accent 2 */
+      --ok:#34d399;          /* success */
+      --danger:#fb7185;      /* danger */
+      --shadow: 0 8px 28px rgba(0,0,0,.35);
+      --radius: 20px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 800px at 10% -20%, #162032 0%, transparent 60%),
+                  radial-gradient(800px 600px at 120% -10%, #1a102a 0%, transparent 60%),
+                  var(--bg);
+      color:var(--text); line-height:1.5;
+    }
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:50; backdrop-filter:saturate(130%) blur(8px);
+      background:rgba(11,12,15,.6); border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .nav{
+      display:flex; align-items:center; gap:16px; padding:14px 18px; max-width:1200px; margin:0 auto;
+    }
+    .logo{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .logo-badge{width:32px; height:32px; border-radius:12px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); display:grid; place-items:center; box-shadow:var(--shadow)}
+    .logo-badge span{font-weight:900; color:#0b0c0f}
+    .search{flex:1; position:relative}
+    .search input{
+      width:100%; padding:12px 42px; border-radius:14px; border:1px solid rgba(255,255,255,.08);
+      background:rgba(18,20,26,.9); color:var(--text); outline:none;
+    }
+    .search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.7}
+    .actions{display:flex; align-items:center; gap:12px}
+    .btn{
+      border:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, rgba(26,28,36,.9), rgba(16,18,24,.9));
+      color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer; display:inline-flex; gap:8px; align-items:center;
+    }
+    .btn:hover{border-color:rgba(255,255,255,.18)}
+    .badge{display:inline-grid; place-items:center; min-width:18px; height:18px; padding:0 5px; font-size:12px; border-radius:999px; background:var(--brand); color:#04131a; font-weight:700}
+
+    /* Layout */
+    .wrap{max-width:1200px; margin:24px auto; padding:0 18px; display:grid; grid-template-columns:280px 1fr; gap:22px}
+    @media (max-width: 900px){.wrap{grid-template-columns:1fr}}
+
+    /* Sidebar */
+    aside{background:rgba(18,20,26,.75); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)}
+    aside h3{margin:4px 0 12px; font-size:18px}
+    .filter-group{margin-bottom:16px}
+    .chip{display:inline-flex; align-items:center; gap:8px; margin:6px 6px 0 0; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.06); cursor:pointer; border:1px solid rgba(255,255,255,.08)}
+    .chip input{accent-color:var(--brand)}
+    .sort-select{width:100%; padding:10px 12px; border-radius:12px; background:#0f1218; color:var(--text); border:1px solid rgba(255,255,255,.08)}
+
+    /* Products */
+    .grid{display:grid; grid-template-columns: repeat(12, 1fr); gap:18px}
+    @media (max-width:1200px){.grid{grid-template-columns: repeat(8, 1fr)}}
+    @media (max-width: 720px){.grid{grid-template-columns: repeat(4, 1fr)}}
+
+    .card{grid-column: span 3; background:rgba(18,20,26,.75); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; box-shadow:var(--shadow)}
+    @media (max-width: 720px){.card{grid-column: span 4}}
+
+    .img{
+      aspect-ratio: 4/3; background:linear-gradient(135deg, rgba(90,200,250,.15), rgba(167,139,250,.10));
+      display:grid; place-items:center; font-weight:800; color:#cde9ff; font-size:22px;
+    }
+    .body{padding:14px}
+    .title{margin:0 0 6px; font-size:16px}
+    .muted{color:var(--muted); font-size:13px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .price{font-size:18px; font-weight:800}
+    .btn-add{width:100%; margin-top:10px}
+    .rating{font-size:13px}
+
+    /* Cart Drawer */
+    .drawer{position:fixed; inset:0; display:none}
+    .drawer.active{display:block}
+    .drawer .backdrop{position:absolute; inset:0; background:rgba(0,0,0,.55)}
+    .drawer .panel{
+      position:absolute; right:0; top:0; height:100%; width:min(420px, 95vw);
+      background:#0e1117; border-left:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow);
+      display:flex; flex-direction:column;
+    }
+    .cart-head{padding:16px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:space-between}
+    .cart-body{padding:12px; overflow:auto; flex:1; display:flex; flex-direction:column; gap:10px}
+    .cart-item{display:grid; grid-template-columns:64px 1fr auto; gap:10px; align-items:center; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:8px}
+    .cart-item .thumb{width:64px; height:48px; border-radius:10px; background:linear-gradient(135deg, rgba(90,200,250,.15), rgba(167,139,250,.10)); display:grid; place-items:center; font-weight:800; color:#cde9ff}
+    .qty{display:inline-flex; align-items:center; border:1px solid rgba(255,255,255,.1); border-radius:999px}
+    .qty button{all:unset; padding:6px 10px; cursor:pointer}
+    .qty input{width:36px; text-align:center; background:transparent; color:var(--text); border:0; outline:none}
+    .cart-foot{padding:16px; border-top:1px solid rgba(255,255,255,.08); display:grid; gap:10px}
+    .row-sum{display:flex; justify-content:space-between; color:var(--muted)}
+    .checkout{background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:#081017; font-weight:800}
+
+    /* Footer */
+    footer{max-width:1200px; margin:40px auto; padding:0 18px 60px; color:var(--muted); font-size:14px}
+    footer a{color:var(--text)}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav" aria-label="Top Navigation">
+      <div class="logo" aria-label="LiteShop Home">
+        <div class="logo-badge" aria-hidden="true"><span>LS</span></div>
+        <div>LiteShop</div>
+      </div>
+
+      <div class="search" role="search">
+        <input id="searchInput" type="search" placeholder="Search products… (e.g. shoes, phone)" aria-label="Search products" />
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <div class="actions">
+        <select id="sort" class="sort-select" aria-label="Sort products">
+          <option value="featured">Sort: Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating-desc">Rating: High to Low</option>
+        </select>
+        <button class="btn" id="openCart" aria-haspopup="dialog" aria-controls="cartDrawer" aria-expanded="false">
+          <span>Cart</span> <span class="badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <aside aria-label="Filters">
+      <h3>Categories</h3>
+      <div id="catChips" class="filter-group"></div>
+
+      <h3>Price</h3>
+      <div class="filter-group">
+        <label class="chip"><input type="radio" name="price" value="any" checked> Any</label>
+        <label class="chip"><input type="radio" name="price" value="0-50"> $0–50</label>
+        <label class="chip"><input type="radio" name="price" value="50-150"> $50–150</label>
+        <label class="chip"><input type="radio" name="price" value="150-500"> $150–500</label>
+        <label class="chip"><input type="radio" name="price" value="500-99999"> $500+</label>
+      </div>
+
+      <h3>Rating</h3>
+      <div class="filter-group">
+        <label class="chip"><input type="radio" name="rating" value="any" checked> Any</label>
+        <label class="chip"><input type="radio" name="rating" value="4"> 4★ & up</label>
+        <label class="chip"><input type="radio" name="rating" value="3"> 3★ & up</label>
+      </div>
+
+      <button id="clearFilters" class="btn" style="width:100%">Clear Filters</button>
+    </aside>
+
+    <section aria-live="polite" aria-busy="false">
+      <div class="grid" id="productGrid"></div>
+    </section>
+  </main>
+
+  <!-- Drawer -->
+  <div class="drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-label="Shopping cart">
+    <div class="backdrop" id="closeCart" tabindex="-1" aria-hidden="true"></div>
+    <div class="panel">
+      <div class="cart-head">
+        <strong>Your Cart</strong>
+        <button class="btn" id="closeCartBtn">Close</button>
+      </div>
+      <div class="cart-body" id="cartItems"></div>
+      <div class="cart-foot">
+        <div class="row-sum"><span>Subtotal</span><strong id="subtotal">$0.00</strong></div>
+        <div class="row-sum"><span>Estimated Tax</span><span id="tax">$0.00</span></div>
+        <div class="row-sum" style="font-weight:800"><span>Total</span><span id="total">$0.00</span></div>
+        <button class="btn checkout" id="checkoutBtn">Checkout</button>
+        <small class="muted">Demo only — no payments processed.</small>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>&copy; <span id="year"></span> LiteShop. Built with vanilla HTML/CSS/JS. Customize products in <code>products</code> array below.</div>
+  </footer>
+
+  <script>
+    // --- Demo Data -----------------------------------------------------------
+    const products = [
+      {id:'p1', name:'Aurora Running Shoes', price:89, category:'Shoes', rating:4.6, imageLabel:'SH', desc:'Lightweight daily trainer'},
+      {id:'p2', name:'Nebula Wireless Earbuds', price:59, category:'Electronics', rating:4.2, imageLabel:'EB', desc:'Clear calls, deep bass'},
+      {id:'p3', name:'Lumen Smartwatch', price:149, category:'Electronics', rating:4.4, imageLabel:'SW', desc:'Sleep + fitness tracking'},
+      {id:'p4', name:'Cascade Water Bottle 1L', price:24, category:'Outdoors', rating:4.8, imageLabel:'WB', desc:'Vacuum insulated steel'},
+      {id:'p5', name:'Stratus Hoodie', price:64, category:'Apparel', rating:4.1, imageLabel:'HD', desc:'Soft fleece, relaxed fit'},
+      {id:'p6', name:'Terra Hiking Backpack', price:119, category:'Outdoors', rating:4.7, imageLabel:'BP', desc:'28L, ergonomic support'},
+      {id:'p7', name:'Orbit Mechanical Keyboard', price:99, category:'Electronics', rating:4.5, imageLabel:'KB', desc:'Hot‑swap, compact 75%'},
+      {id:'p8', name:'Nimbus Joggers', price:54, category:'Apparel', rating:4.0, imageLabel:'JG', desc:'4‑way stretch fabric'},
+      {id:'p9', name:'Pulse Fitness Band', price:39, category:'Electronics', rating:3.9, imageLabel:'FB', desc:'Steps, HR, notifications'},
+      {id:'p10', name:'Zen Mat Yoga', price:29, category:'Outdoors', rating:4.3, imageLabel:'YM', desc:'Non‑slip, 6mm thick'},
+      {id:'p11', name:'Comet Trail Runners', price:129, category:'Shoes', rating:4.7, imageLabel:'TR', desc:'Grip for any terrain'},
+      {id:'p12', name:'Aero Windbreaker', price:72, category:'Apparel', rating:4.2, imageLabel:'WB', desc:'Packable, water‑resistant'}
+    ];
+
+    const state = {
+      q: '', sort: 'featured', categories: new Set(), priceRange: 'any', ratingMin: 'any',
+      cart: JSON.parse(localStorage.getItem('cart.v1')||'{}')
+    };
+
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    // --- Utils ---------------------------------------------------------------
+    const fmt = n => `$${n.toFixed(2)}`;
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+    const svgData = (label) => `data:image/svg+xml;utf8,` + encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='450'>
+        <defs>
+          <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0%' stop-color='rgba(90,200,250,0.22)'/>
+            <stop offset='100%' stop-color='rgba(167,139,250,0.18)'/>
+          </linearGradient>
+        </defs>
+        <rect width='100%' height='100%' fill='url(#g)'/>
+        <g font-family='system-ui, -apple-system, Segoe UI, Roboto' fill='#0b0c0f' font-size='120' font-weight='900'>
+          <text x='50%' y='52%' text-anchor='middle'>${label}</text>
+        </g>
+      </svg>`);
+
+    // --- Rendering -----------------------------------------------------------
+    function renderCategories(){
+      const cats = [...new Set(products.map(p=>p.category))].sort();
+      const wrap = $('#catChips');
+      wrap.innerHTML = cats.map(c=>
+        `<label class="chip"><input type="checkbox" value="${c}"> ${c}</label>`
+      ).join('');
+      wrap.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        cb.addEventListener('change', ()=>{
+          if(cb.checked) state.categories.add(cb.value); else state.categories.delete(cb.value);
+          renderProducts();
+        })
+      })
+    }
+
+    function filtered(){
+      return products.filter(p=>{
+        const matchesQ = !state.q || (p.name+" "+p.desc+" "+p.category).toLowerCase().includes(state.q);
+        const matchesCat = state.categories.size===0 || state.categories.has(p.category);
+        const [lo, hi] = state.priceRange==='any' ? [0, Infinity] : state.priceRange.split('-').map(Number);
+        const matchesPrice = p.price>=lo && p.price<=hi;
+        const minR = state.ratingMin==='any' ? 0 : Number(state.ratingMin);
+        const matchesRating = p.rating >= minR;
+        return matchesQ && matchesCat && matchesPrice && matchesRating;
+      }).sort((a,b)=>{
+        switch(state.sort){
+          case 'price-asc': return a.price - b.price;
+          case 'price-desc': return b.price - a.price;
+          case 'rating-desc': return b.rating - a.rating;
+          default: return 0;
+        }
+      })
+    }
+
+    function renderProducts(){
+      const grid = $('#productGrid');
+      const list = filtered();
+      grid.innerHTML = list.map(p=>`
+        <article class="card" aria-label="${p.name}">
+          <div class="img"><img src="${svgData(p.imageLabel)}" alt="${p.name}" style="max-width:100%; max-height:100%"/></div>
+          <div class="body">
+            <h4 class="title">${p.name}</h4>
+            <div class="muted">${p.desc}</div>
+            <div class="row" style="margin-top:8px">
+              <div class="rating" aria-label="Rating">⭐ ${p.rating.toFixed(1)}</div>
+              <div class="price">${fmt(p.price)}</div>
+            </div>
+            <button class="btn btn-add" data-id="${p.id}">Add to Cart</button>
+          </div>
+        </article>`).join('');
+
+      grid.querySelectorAll('.btn-add').forEach(btn=>btn.addEventListener('click', ()=>{
+        addToCart(btn.dataset.id, 1);
+      }))
+    }
+
+    // --- Cart ---------------------------------------------------------------
+    function addToCart(id, qty=1){
+      state.cart[id] = clamp((state.cart[id]||0) + qty, 1, 99);
+      persistCart(); renderCart();
+      // quick pulse on cart button
+      const cc = $('#cartCount'); cc.classList.add('pulse'); setTimeout(()=>cc.classList.remove('pulse'), 300);
+    }
+
+    function removeFromCart(id){ delete state.cart[id]; persistCart(); renderCart(); }
+    function setQty(id, qty){ state.cart[id] = clamp(qty, 1, 99); persistCart(); renderCart(); }
+    function persistCart(){ localStorage.setItem('cart.v1', JSON.stringify(state.cart)); updateCartCount(); }
+
+    function updateCartCount(){
+      const count = Object.values(state.cart).reduce((a,b)=>a+b,0);
+      $('#cartCount').textContent = count;
+    }
+
+    function renderCart(){
+      const itemsEl = $('#cartItems');
+      const entries = Object.entries(state.cart);
+      if(entries.length===0){ itemsEl.innerHTML = `<div class="muted" style="padding:12px">Your cart is empty.</div>`; }
+      else {
+        itemsEl.innerHTML = entries.map(([id,qty])=>{
+          const p = products.find(x=>x.id===id);
+          if(!p) return '';
+          const line = p.price * qty;
+          return `<div class="cart-item">
+            <div class="thumb">${p.imageLabel}</div>
+            <div>
+              <div style="font-weight:700">${p.name}</div>
+              <div class="muted">${fmt(p.price)} • ${p.category}</div>
+              <div style="margin-top:6px" class="qty">
+                <button aria-label="Decrease" data-act="dec" data-id="${id}">−</button>
+                <input type="number" min="1" max="99" value="${qty}" data-id="${id}" aria-label="Quantity for ${p.name}">
+                <button aria-label="Increase" data-act="inc" data-id="${id}">+</button>
+                <button class="btn" style="margin-left:8px" data-act="rm" data-id="${id}">Remove</button>
+              </div>
+            </div>
+            <div style="font-weight:800">${fmt(line)}</div>
+          </div>`
+        }).join('');
+
+        // Bind actions
+        itemsEl.querySelectorAll('button[data-act="dec"]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.id; setQty(id,(state.cart[id]||1)-1)}));
+        itemsEl.querySelectorAll('button[data-act="inc"]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.id; setQty(id,(state.cart[id]||0)+1)}));
+        itemsEl.querySelectorAll('button[data-act="rm"]').forEach(b=>b.addEventListener('click',()=>removeFromCart(b.dataset.id)));
+        itemsEl.querySelectorAll('input[type="number"]').forEach(inp=>inp.addEventListener('input',()=>{ const id=inp.dataset.id; setQty(id, Number(inp.value)||1)}));
+      }
+
+      // totals
+      const subtotal = entries.reduce((sum,[id,qty])=>{
+        const p = products.find(x=>x.id===id); return sum + (p? p.price*qty : 0);
+      }, 0);
+      const tax = subtotal * 0.07; // 7% demo tax
+      $('#subtotal').textContent = fmt(subtotal);
+      $('#tax').textContent = fmt(tax);
+      $('#total').textContent = fmt(subtotal + tax);
+    }
+
+    // --- Drawer controls -----------------------------------------------------
+    function openDrawer(){ $('#cartDrawer').classList.add('active'); $('#openCart').setAttribute('aria-expanded','true'); }
+    function closeDrawer(){ $('#cartDrawer').classList.remove('active'); $('#openCart').setAttribute('aria-expanded','false'); }
+
+    // --- Events --------------------------------------------------------------
+    function bindEvents(){
+      $('#openCart').addEventListener('click', openDrawer);
+      $('#closeCart').addEventListener('click', closeDrawer);
+      $('#closeCartBtn').addEventListener('click', closeDrawer);
+      $('#checkoutBtn').addEventListener('click', ()=>{
+        alert('Demo checkout! Hook this up to your backend or a provider like Stripe.');
+      });
+
+      $('#searchInput').addEventListener('input', (e)=>{
+        state.q = e.target.value.trim().toLowerCase(); renderProducts();
+      });
+
+      $('#sort').addEventListener('change', (e)=>{ state.sort = e.target.value; renderProducts(); });
+
+      $$('input[name="price"]').forEach(r=>r.addEventListener('change', ()=>{ state.priceRange = document.querySelector('input[name="price"]:checked').value; renderProducts(); }))
+      $$('input[name="rating"]').forEach(r=>r.addEventListener('change', ()=>{ state.ratingMin = document.querySelector('input[name="rating"]:checked').value; renderProducts(); }))
+
+      $('#clearFilters').addEventListener('click', ()=>{
+        state.q = ''; $('#searchInput').value='';
+        state.categories.clear(); renderCategories();
+        document.querySelector('input[name="price"][value="any"]').checked = true; state.priceRange='any';
+        document.querySelector('input[name="rating"][value="any"]').checked = true; state.ratingMin='any';
+        $('#sort').value='featured'; state.sort='featured';
+        renderProducts();
+      })
+
+      // keyboard close
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeDrawer(); })
+    }
+
+    // --- Init ----------------------------------------------------------------
+    function init(){
+      document.title = 'LiteShop — E‑commerce Template';
+      $('#year').textContent = new Date().getFullYear();
+      renderCategories();
+      renderProducts();
+      bindEvents();
+      updateCartCount();
+      renderCart();
+    }
+    init();
+  </script>
+</body>
+</html>
